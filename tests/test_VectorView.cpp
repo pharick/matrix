@@ -84,7 +84,10 @@ TEST_CASE("Reshape vector into matrix", "[VectorView]")
 
     REQUIRE(matrix.width() == 3);
     REQUIRE(matrix.height() == 2);
-    REQUIRE(matrix == Matrix<int>({1, 2, 3, 4, 5, 6}, 3, 2));
+    REQUIRE(matrix == Matrix<int>({
+        1, 3, 5,
+        2, 4, 6,
+    }, 3, 2));
     REQUIRE(matrix[0] == VectorView(data, 2));
     REQUIRE(matrix[1] == VectorView(data + 2, 2));
     REQUIRE(matrix[2] == VectorView(data + 4, 2));
@@ -168,4 +171,38 @@ TEST_CASE("VectorView subtraction assignment", "[VectorView]")
     REQUIRE(v1[0] == 3);
     REQUIRE(v1[1] == 3);
     REQUIRE(v1[2] == 3);
+}
+
+TEST_CASE("Multiply by scalar", "[VectorView]")
+{
+    int data[]{1, 2, 3, 4, 5};
+    size_t size = sizeof(data) / sizeof(int);
+
+    VectorView<int> vectorView(data, size);
+
+    Vector<int> result = vectorView * 2;
+
+    REQUIRE(result.size() == size);
+    REQUIRE(result[0] == 2);
+    REQUIRE(result[1] == 4);
+    REQUIRE(result[2] == 6);
+    REQUIRE(result[3] == 8);
+    REQUIRE(result[4] == 10);
+}
+
+TEST_CASE("Multiplication assignment", "[VectorView]")
+{
+    int data[]{1, 2, 3, 4, 5};
+    size_t size = sizeof(data) / sizeof(int);
+
+    VectorView<int> vectorView(data, size);
+
+    vectorView *= 2;
+
+    REQUIRE(vectorView.size() == size);
+    REQUIRE(vectorView[0] == 2);
+    REQUIRE(vectorView[1] == 4);
+    REQUIRE(vectorView[2] == 6);
+    REQUIRE(vectorView[3] == 8);
+    REQUIRE(vectorView[4] == 10);
 }

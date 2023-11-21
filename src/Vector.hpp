@@ -27,6 +27,7 @@ namespace m42
         Vector(std::initializer_list<T> list);
         Vector(const T *data, size_t size);
         Vector(const Vector &other);
+        Vector(const VectorView<T> &v);
         Vector(Vector &&other) noexcept;
         Vector &operator=(Vector other);
         ~Vector();
@@ -83,6 +84,14 @@ namespace m42
         for (size_t i = 0; i < other.size(); i++)
             VectorView<T>::_data[i] = other[i];
     }
+
+    /**
+     * @brief Construct a new Vector object from a VectorView
+     *
+     * @param other 
+     */
+    template <Arithmetic T>
+    Vector<T>::Vector(const VectorView<T> &v) : Vector(v.data(), v.size()) {}
 
     /**
      * @brief Move constructor

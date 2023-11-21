@@ -133,7 +133,10 @@ TEST_CASE("Reshape vector into matrix", "[Vector]")
 
     REQUIRE(m.width() == 3);
     REQUIRE(m.height() == 2);
-    REQUIRE(m == Matrix<int>({1, 2, 3, 4, 5, 6}, 3, 2));
+    REQUIRE(m == Matrix<int>({
+        1, 3, 5,
+        2, 4, 6,
+    }, 3, 2));
 }
 
 TEST_CASE("Vector addition", "[Vector]")
@@ -170,4 +173,18 @@ TEST_CASE("Vector subtraction assignment", "[Vector]")
 
     v1 -= v2;
     REQUIRE(v1 == Vector<int>({3, 3, 3}));
+}
+
+TEST_CASE("Multiply by scalar", "[Vector]")
+{
+    Vector<int> v{1, 2, 3};
+    Vector<int> result = v * 2;
+    REQUIRE(result == Vector<int>({2, 4, 6}));
+}
+
+TEST_CASE("Multiplication assignment", "[Vector]")
+{
+    Vector<int> v{1, 2, 3};
+    v *= 2;
+    REQUIRE(v == Vector<int>({2, 4, 6}));
 }

@@ -29,7 +29,8 @@ namespace m42
         VectorView() = delete;
         VectorView(T *data, size_t size);
         VectorView(const VectorView &other) = default;
-        VectorView &operator=(const VectorView &other) = default;
+        VectorView &operator=(const VectorView &other);
+        VectorView &operator=(const Vector<T> &v);
         ~VectorView() = default;
 
         size_t size() const;
@@ -44,6 +45,8 @@ namespace m42
         Vector<T> operator-(const VectorView &other) const;
         VectorView<T> &operator+=(const VectorView &other);
         VectorView<T> &operator-=(const VectorView &other);
+        Vector<T> operator*(T scalar) const;
+        VectorView<T> operator*=(T scalar);
         operator std::string() const;
     };
 
@@ -55,6 +58,39 @@ namespace m42
      */
     template <Arithmetic T>
     VectorView<T>::VectorView(T *data, size_t size) : _data(data), _size(size) {}
+
+    /**
+     * @brief Assignment operator
+     *
+     * @param other VectorView to copy
+     * @return VectorView& Reference to self
+     */
+    template <Arithmetic T>
+    VectorView<T> &VectorView<T>::operator=(const VectorView &other)
+    {
+        if (size() != other.size())
+            throw std::invalid_argument("VectorView must be of the same size");
+        if (data() == other.data())
+            return *this;
+        for (size_t i = 0; i < _size; i++)
+            _data[i] = other._data[i];
+        return *this;
+    }
+
+    /**
+     * @brief Assign a vector to the vector view
+     * 
+     * @param v Vector to assign
+     */
+    template <Arithmetic T>
+    VectorView<T> &VectorView<T>::operator=(const Vector<T> &v)
+    {
+        if (size() != v.size())
+            throw std::invalid_argument("Vector must be of the same size");
+        for (size_t i = 0; i < _size; i++)
+            _data[i] = v[i];
+        return *this;
+    }
 
     /**
      * @brief Get the size of the vector
@@ -215,6 +251,35 @@ namespace m42
             throw std::invalid_argument("Vectors must be of the same size");
         for (size_t i = 0; i < _size; i++)
             _data[i] -= other._data[i];
+        return *this;
+    }
+
+    /**
+     * @brief Multiply a vector by a scalar
+     *
+     * @param scalar Scalar to multiply by
+     * @return Vector& Result of multiplication
+     */
+    template <Arithmetic T>
+    Vector<T> VectorView<T>::operator*(T scalar) const
+    {
+        Vector<T> result(_size);
+        for (size_t i = 0; i < _size; i++)
+            result[i] = _data[i] * scalar;
+        return result;
+    }
+
+    /**
+     * @brief Multiply a vector by a scalar and assign the result to the vector
+     *
+     * @param scalar Scalar to multiply by
+     * @return Vector& Result of multiplication
+     */
+    template <Arithmetic T>
+    VectorView<T> VectorView<T>::operator*=(T scalar)
+    {
+        for (size_t i = 0; i < _size; i++)
+            _data[i] *= scalar;
         return *this;
     }
 

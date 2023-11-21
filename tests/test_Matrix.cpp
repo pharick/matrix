@@ -24,14 +24,17 @@ TEST_CASE("Matrix construction", "[Matrix]")
 
     SECTION("Matrix construction from initializer list")
     {
-        Matrix<int> m({1, 2, 3, 4, 5, 6}, 3, 2);
+        Matrix<int> m({
+            1, 2, 3,
+            4, 5, 6,
+        }, 3, 2);
         REQUIRE(m.width() == 3);
         REQUIRE(m.height() == 2);
         REQUIRE(m[0][0] == 1);
-        REQUIRE(m[0][1] == 2);
-        REQUIRE(m[1][0] == 3);
-        REQUIRE(m[1][1] == 4);
-        REQUIRE(m[2][0] == 5);
+        REQUIRE(m[0][1] == 4);
+        REQUIRE(m[1][0] == 2);
+        REQUIRE(m[1][1] == 5);
+        REQUIRE(m[2][0] == 3);
         REQUIRE(m[2][1] == 6);
     }
 
@@ -57,47 +60,59 @@ TEST_CASE("Matrix construction", "[Matrix]")
 
 TEST_CASE("Matrix copy construction", "[Matrix]")
 {
-    Matrix<int> m1({1, 2, 3, 4, 5, 6}, 3, 2);
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
 
     Matrix<int> m2(m1);
     REQUIRE(m2.width() == 3);
     REQUIRE(m2.height() == 2);
     REQUIRE(m2[0][0] == 1);
-    REQUIRE(m2[0][1] == 2);
-    REQUIRE(m2[1][0] == 3);
-    REQUIRE(m2[1][1] == 4);
-    REQUIRE(m2[2][0] == 5);
+    REQUIRE(m2[0][1] == 4);
+    REQUIRE(m2[1][0] == 2);
+    REQUIRE(m2[1][1] == 5);
+    REQUIRE(m2[2][0] == 3);
     REQUIRE(m2[2][1] == 6);
 }
 
 TEST_CASE("Matrix move construction", "[Matrix]")
 {
-    Matrix<int> m1({1, 2, 3, 4, 5, 6}, 3, 2);
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
 
     Matrix<int> m2(std::move(m1));
     REQUIRE(m2.width() == 3);
     REQUIRE(m2.height() == 2);
     REQUIRE(m2[0][0] == 1);
-    REQUIRE(m2[0][1] == 2);
-    REQUIRE(m2[1][0] == 3);
-    REQUIRE(m2[1][1] == 4);
-    REQUIRE(m2[2][0] == 5);
+    REQUIRE(m2[0][1] == 4);
+    REQUIRE(m2[1][0] == 2);
+    REQUIRE(m2[1][1] == 5);
+    REQUIRE(m2[2][0] == 3);
     REQUIRE(m2[2][1] == 6);
 }
 
 TEST_CASE("Matrix assignment operator", "[Matrix]")
 {
-    Matrix<int> m1({1, 2, 3, 4, 5, 6}, 3, 2);
-    Matrix<int> m2({7, 8, 9, 10, 11, 12}, 3, 2);
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+    Matrix<int> m2({
+        7, 8, 9,
+        10, 11, 12,
+    }, 3, 2);
 
     m2 = m1;
     REQUIRE(m2.width() == 3);
     REQUIRE(m2.height() == 2);
     REQUIRE(m2[0][0] == 1);
-    REQUIRE(m2[0][1] == 2);
-    REQUIRE(m2[1][0] == 3);
-    REQUIRE(m2[1][1] == 4);
-    REQUIRE(m2[2][0] == 5);
+    REQUIRE(m2[0][1] == 4);
+    REQUIRE(m2[1][0] == 2);
+    REQUIRE(m2[1][1] == 5);
+    REQUIRE(m2[2][0] == 3);
     REQUIRE(m2[2][1] == 6);
 }
 
@@ -109,15 +124,18 @@ TEST_CASE("Matrix destruction", "[Matrix]")
 
 TEST_CASE("Matrix indexing", "[Matrix]")
 {
-    Matrix<int> m({1, 2, 3, 4, 5, 6}, 3, 2);
+    Matrix<int> m({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
 
     SECTION("Accessing elements using operator[]")
     {
         REQUIRE(m[0][0] == 1);
-        REQUIRE(m[0][1] == 2);
-        REQUIRE(m[1][0] == 3);
-        REQUIRE(m[1][1] == 4);
-        REQUIRE(m[2][0] == 5);
+        REQUIRE(m[0][1] == 4);
+        REQUIRE(m[1][0] == 2);
+        REQUIRE(m[1][1] == 5);
+        REQUIRE(m[2][0] == 3);
         REQUIRE(m[2][1] == 6);
     }
 
@@ -156,17 +174,25 @@ TEST_CASE("Matrix isSquare", "[Matrix]")
 
 TEST_CASE("Matrix as string", "[Matrix]")
 {
-    Matrix<int> m({1, 2, 3, 4, 5, 6}, 2, 3);
+    Matrix<int> m({
+        1, 2,
+        3, 4,
+        5, 6,
+    }, 2, 3);
     // column-major order
-    REQUIRE(std::string(m) == "[1 3 5\n 2 4 6]");
+    REQUIRE(std::string(m) == "[1 2\n 3 4\n 5 6]");
 }
 
 TEST_CASE("Access vectors of the matrix", "[Matrix]")
 {
-    int d1[]{1, 2};
-    int d2[]{3, 4};
-    int d3[]{5, 6};
-    Matrix<int> m({1, 2, 3, 4, 5, 6}, 3, 2);
+    Matrix<int> m({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+
+    int d1[]{1, 4};
+    int d2[]{2, 5};
+    int d3[]{3, 6};
 
     SECTION("Accessing vectors using operator[]")
     {
@@ -175,4 +201,107 @@ TEST_CASE("Access vectors of the matrix", "[Matrix]")
         REQUIRE(m[2] == VectorView<int>(d3, 2));
     }
 
+}
+
+TEST_CASE("Assign matrix vector to variable", "[Matrix]")
+{
+    Matrix<int> m({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+    Vector<int> v = m[0];
+
+    REQUIRE(v == Vector<int>({1, 4}));
+    REQUIRE(v.size() == 2);
+}
+
+TEST_CASE("Assign vector to matrix column", "[Matrix]")
+{
+    Matrix<int> m(3, 2);
+    m[0] = Vector<int>({1, 2});
+    m[1] = Vector<int>({3, 4});
+    m[2] = Vector<int>({5, 6});
+
+    REQUIRE(m == Matrix<int>({
+       1, 3, 5,
+       2, 4, 6,
+    }, 3, 2));
+    REQUIRE(std::string(m) == "[1 3 5\n 2 4 6]");
+}
+
+TEST_CASE("Matrix equality", "[Matrix]")
+{
+    Matrix<int> m1({1, 2, 3, 4, 5, 6}, 3, 2);
+    Matrix<int> m2({1, 2, 3, 4, 5, 6}, 3, 2);
+    Matrix<int> m3({7, 8, 9, 10, 11, 12}, 3, 2);
+
+    REQUIRE(m1 == m2);
+    REQUIRE(m1 != m3);
+}
+
+TEST_CASE("Copy vector from one matrix to another", "[Matrix]")
+{
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+    Matrix<int> m2(3, 2);
+
+    m2[0] = m1[0];
+    m2[1] = m1[1];
+    m2[2] = m1[2];
+
+    REQUIRE(m2 == Matrix<int>({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2));
+
+    m1[0] = Vector<int>({7, 8});
+    m1[1] = Vector<int>({9, 10});
+    m1[2] = Vector<int>({11, 12});
+
+    REQUIRE(m1 == Matrix<int>({
+        7, 9,  11,
+        8, 10, 12,
+    }, 3, 2));
+    REQUIRE(m2 == Matrix<int>({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2));
+}
+
+TEST_CASE("Assign vector of wrong size", "[Matrix]")
+{
+    Matrix<int> m(3, 2);
+    REQUIRE_THROWS_AS(m[0] = Vector<int>({1, 2, 3}), std::invalid_argument);
+}
+
+TEST_CASE("Multiply matrix column by scalar", "[Matrix]")
+{
+    Matrix<int> m1({
+        1, 3,
+        2, 4,
+    }, 2, 2);
+
+    Matrix<int> m2(3, 2);
+
+    m2[0] = m1[0] * 2;
+    m2[1] = m1[1] * 3;
+    m2[2] = m1[0] * 4;
+
+    REQUIRE(m2 == Matrix<int>({
+        2, 9,  4,
+        4, 12, 8,
+    }, 3, 2));
+}
+
+TEST_CASE("Reshape matrix into vector", "[Matrix]")
+{
+    Matrix<int> m({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+    Vector<int> v = m.reshapeIntoVector();
+
+    REQUIRE(v == Vector<int>({1, 4, 2, 5, 3, 6}));
 }

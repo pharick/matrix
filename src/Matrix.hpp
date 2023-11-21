@@ -81,9 +81,10 @@ namespace m42
     {
         if (list.size() != width * height)
             throw std::invalid_argument("Invalid initializer list size");
-        size_t i = 0;
-        for (auto &elem : list)
-            _data[i++] = elem;
+        // row-major order to column-major order
+        for (size_t i = 0; i < width; i++)
+            for (size_t j = 0; j < height; j++)
+                (*this)[i][j] = *(list.begin() + j * width + i);
     }
 
     /**
@@ -250,6 +251,8 @@ namespace m42
     {
         if (_width != other._width || _height != other._height)
             return false;
+        if (_data == other._data)
+            return true;
         for (size_t i = 0; i < _width; i++)
             if ((*this)[i] != other[i])
                 return false;
@@ -266,16 +269,16 @@ namespace m42
     {
         // column-major order
         std::string str = "[";
-        for (size_t i = 0; i < _width; i++)
+        for (size_t i = 0; i < _height; i++)
         {
-            for (size_t j = 0; j < _height; j++)
+            for (size_t j = 0; j < _width; j++)
             {
-                str += std::to_string(_data[j * _width + i]);
-                if (j < _height - 1)
+                str += std::to_string((*this)[j][i]);
+                if (j != _width - 1)
                     str += " ";
+                else if (i != _height - 1)
+                    str += "\n ";
             }
-            if (i < _width - 1)
-                str += "\n ";
         }
         str += "]";
         return str;
