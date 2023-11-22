@@ -5,6 +5,7 @@
 #include <string>
 #include <ostream>
 #include <utility>
+#include <vector>
 
 #include "VectorView.hpp"
 
@@ -88,7 +89,7 @@ namespace m42
     /**
      * @brief Construct a new Vector object from a VectorView
      *
-     * @param other 
+     * @param other
      */
     template <Arithmetic T>
     Vector<T>::Vector(const VectorView<T> &v) : Vector(v.data(), v.size()) {}

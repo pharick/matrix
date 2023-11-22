@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+
 #include "VectorView.hpp"
 
 using namespace m42;

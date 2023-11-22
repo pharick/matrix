@@ -43,6 +43,19 @@ TEST_CASE("Matrix construction", "[Matrix]")
         REQUIRE_THROWS_AS(Matrix<int>({1, 2, 3, 4, 5}, 2, 3), std::invalid_argument);
     }
 
+    SECTION("Matrix constructed from initializer list of initializer lists")
+    {
+        Matrix m1{
+            {1, 2, 3},
+            {4, 5, 6},
+        };
+        Matrix m2({
+            1, 2, 3,
+            4, 5, 6,
+        }, 3, 2);
+        REQUIRE(m1 == m2);
+    }
+
     SECTION("Matrix construction from pointer to data")
     {
         int data[]{1, 2, 3, 4, 5, 6};
@@ -304,4 +317,104 @@ TEST_CASE("Reshape matrix into vector", "[Matrix]")
     Vector<int> v = m.reshapeIntoVector();
 
     REQUIRE(v == Vector<int>({1, 4, 2, 5, 3, 6}));
+}
+
+TEST_CASE("Matrix addition", "[Matrix]")
+{
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+    Matrix<int> m2({
+        7, 8, 9,
+        10, 11, 12,
+    }, 3, 2);
+
+    Matrix<int> result = m1 + m2;
+    REQUIRE(result == Matrix<int>({
+        8, 10, 12,
+        14, 16, 18,
+    }, 3, 2));
+}
+
+TEST_CASE("Matrix subtraction", "[Matrix]")
+{
+    Matrix<int> m1({
+        7, 8, 9,
+        10, 11, 12,
+    }, 3, 2);
+    Matrix<int> m2({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+
+    Matrix<int> result = m1 - m2;
+    REQUIRE(result == Matrix<int>({
+        6, 6, 6,
+        6, 6, 6,
+    }, 3, 2));
+}
+
+TEST_CASE("Matrix addition assignment", "[Matrix]")
+{
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+    Matrix<int> m2({
+        7, 8, 9,
+        10, 11, 12,
+    }, 3, 2);
+
+    m1 += m2;
+    REQUIRE(m1 == Matrix<int>({
+        8, 10, 12,
+        14, 16, 18,
+    }, 3, 2));
+}
+
+TEST_CASE("Matrix subtraction assignment", "[Matrix]")
+{
+    Matrix<int> m1({
+        7, 8, 9,
+        10, 11, 12,
+    }, 3, 2);
+    Matrix<int> m2({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+
+    m1 -= m2;
+    REQUIRE(m1 == Matrix<int>({
+        6, 6, 6,
+        6, 6, 6,
+    }, 3, 2));
+}
+
+TEST_CASE("Multiply matrix by scalar", "[Matrix]")
+{
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+
+    Matrix<int> result = m1 * 2;
+    REQUIRE(result == Matrix<int>({
+        2, 4, 6,
+        8, 10, 12,
+    }, 3, 2));
+}
+
+TEST_CASE("Multiplication assignment", "[Matrix]")
+{
+    Matrix<int> m1({
+        1, 2, 3,
+        4, 5, 6,
+    }, 3, 2);
+
+    m1 *= 2;
+    REQUIRE(m1 == Matrix<int>({
+        2, 4, 6,
+        8, 10, 12,
+    }, 3, 2));
 }

@@ -188,3 +188,28 @@ TEST_CASE("Multiplication assignment", "[Vector]")
     v *= 2;
     REQUIRE(v == Vector<int>({2, 4, 6}));
 }
+
+TEST_CASE("Dot product", "[Vector]")
+{
+    REQUIRE(Vector{0.0, 0.0} * Vector{1.0, 1.0} == 0.0);
+    REQUIRE(Vector{1.0, 1.0} * Vector{1.0, 1.0} == 2.0);
+    REQUIRE(Vector{-1.0, 6.0} * Vector{3.0, 2.0} == 9.0);
+}
+
+TEST_CASE("Norms", "[Vector]")
+{
+    Vector v1{0.0, 0.0, 0.0};
+    REQUIRE(v1.norm1() == 0.0);
+    REQUIRE(v1.norm() == 0.0);
+    REQUIRE(v1.normInf() == 0.0);
+
+    Vector v2{1.0, 2.0, 3.0};
+    REQUIRE(v2.norm1() == 6.0);
+    REQUIRE(v2.norm() == std::sqrt(14.0)); // 3.74165738
+    REQUIRE(v2.normInf() == 3.0);
+
+    Vector v3{-1.0, -2.0};
+    REQUIRE(v3.norm1() == 3.0);
+    REQUIRE(v3.norm() == std::sqrt(5.0)); // 2.236067977
+    REQUIRE(v3.normInf() == 2.0);
+}

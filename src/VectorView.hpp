@@ -26,6 +26,8 @@ namespace m42
         size_t _size;
 
     public:
+        using value_type = T;
+
         VectorView() = delete;
         VectorView(T *data, size_t size);
         VectorView(const VectorView &other) = default;
@@ -37,6 +39,9 @@ namespace m42
         T *data();
         const T *data() const;
         Matrix<T> reshapeIntoMatrix(size_t width, size_t height) const;
+        double norm1() const;
+        double norm() const;
+        double normInf() const;
 
         T &operator[](size_t index);
         const T &operator[](size_t index) const;
@@ -47,6 +52,7 @@ namespace m42
         VectorView<T> &operator-=(const VectorView &other);
         Vector<T> operator*(T scalar) const;
         VectorView<T> operator*=(T scalar);
+        T operator*(const VectorView &other) const;
         operator std::string() const;
     };
 
@@ -138,6 +144,50 @@ namespace m42
         if (width * height != _size)
             throw std::invalid_argument("Invalid matrix size");
         return Matrix<T>(_data, width, height);
+    }
+
+    /**
+     * @brief Calculate the manhattan norm of the vector
+     *
+     * @return double manhattan norm
+     */
+    template <Arithmetic T>
+    double VectorView<T>::norm1() const
+    {
+        T result = 0;
+        for (size_t i = 0; i < _size; i++)
+            result += std::abs(_data[i]);
+        return result;
+    }
+
+    /**
+     * @brief Calculate the euclidean norm of the vector
+     *
+     * @return double euclidean norm
+     */
+    template <Arithmetic T>
+    double VectorView<T>::norm() const
+    {
+        // use std::pow instead of std::sqrt
+        T result = 0;
+        for (size_t i = 0; i < _size; i++)
+            result = std::fma(_data[i], _data[i], result);
+        return std::pow(result, 0.5);
+    }
+
+    /**
+     * @brief Calculate the infinity norm of the vector
+     *
+     * @return double infinity norm
+     */
+    template <Arithmetic T>
+    double VectorView<T>::normInf() const
+    {
+        // not allowed to use std::abs
+        T result = 0;
+        for (size_t i = 0; i < _size; i++)
+            result = std::max(result, _data[i] > 0 ? _data[i] : -_data[i]);
+        return result;
     }
 
     /**
@@ -281,6 +331,24 @@ namespace m42
         for (size_t i = 0; i < _size; i++)
             _data[i] *= scalar;
         return *this;
+    }
+
+    /**
+     * @brief Dot product of two vectors
+     *
+     * @param other Vector to multiply by
+     * @return T Dot product
+     */
+    template <Arithmetic T>
+    T VectorView<T>::operator*(const VectorView &other) const
+    {
+        if (_size != other._size)
+            throw std::invalid_argument("Vectors must be of the same size");
+        T result = 0;
+        // use std::fma
+        for (size_t i = 0; i < _size; i++)
+            result = std::fma(_data[i], other._data[i], result);
+        return result;
     }
 
     /**

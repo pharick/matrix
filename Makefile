@@ -4,8 +4,8 @@ BUILD_DIR	= ./build
 SRC_DIR		= ./src
 TEST_DIR	= ./tests
 
-SRC_FILES	= Vector.hpp Matrix.hpp
-TEST_FILES	= test_VectorView.cpp test_Vector.cpp test_Matrix.cpp
+SRC_FILES	= common.hpp Vector.hpp Matrix.hpp functions.hpp
+TEST_FILES	= test_VectorView.cpp test_Vector.cpp test_Matrix.cpp test_functions.cpp
 
 SRCS		= $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 OBJS		= $(SRCS:%=$(BUILD_DIR)/%.o)

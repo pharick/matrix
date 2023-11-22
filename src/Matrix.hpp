@@ -32,9 +32,12 @@ namespace m42
         size_t _height;
 
     public:
+        using value_type = T;
+
         Matrix();
         Matrix(size_t width, size_t height);
         Matrix(std::initializer_list<T> list, size_t width, size_t height);
+        Matrix(std::initializer_list<std::initializer_list<T>> list);
         Matrix(const T *data, size_t width, size_t height);
         Matrix(const Matrix &other);
         Matrix(Matrix &&other) noexcept;
@@ -51,6 +54,12 @@ namespace m42
         VectorView<T> operator[](size_t i);
         const VectorView<T> operator[](size_t i) const;
         bool operator==(const Matrix &other) const;
+        Matrix operator+(const Matrix &other) const;
+        Matrix operator-(const Matrix &other) const;
+        Matrix &operator+=(const Matrix &other);
+        Matrix &operator-=(const Matrix &other);
+        Matrix operator*(T scalar) const;
+        Matrix &operator*=(T scalar);
         operator std::string() const;
     };
 
@@ -85,6 +94,23 @@ namespace m42
         for (size_t i = 0; i < width; i++)
             for (size_t j = 0; j < height; j++)
                 (*this)[i][j] = *(list.begin() + j * width + i);
+    }
+
+    /**
+     * @brief Construct a new Matrix object from an initializer list of initializer lists
+     * 
+     * @param list Initializer list of initializer lists
+     */
+    template <Arithmetic T>
+    Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> list) : Matrix(list.begin()->size(), list.size())
+    {
+        for (size_t i = 0; i < _height; i++)
+            if ((list.begin() + i)->size() != _width)
+                throw std::invalid_argument("Invalid initializer list size");
+        // row-major order to column-major order
+        for (size_t i = 0; i < _width; i++)
+            for (size_t j = 0; j < _height; j++)
+                (*this)[i][j] = *((list.begin() + j)->begin() + i);
     }
 
     /**
@@ -257,6 +283,101 @@ namespace m42
             if ((*this)[i] != other[i])
                 return false;
         return true;
+    }
+
+    /**
+     * @brief Return the sum of the matrix and another matrix
+     * 
+     * @param other Matrix to add
+     * @return Matrix<T> Sum of the matrix and the other matrix
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::operator+(const Matrix<T> &other) const
+    {
+        if (_width != other._width || _height != other._height)
+            throw std::invalid_argument("Matrices must have the same size");
+        Matrix<T> result(_width, _height);
+        for (size_t i = 0; i < _width; i++)
+            result[i] = (*this)[i] + other[i];
+        return result;
+    }
+
+    /**
+     * @brief Return the difference of the matrix and another matrix
+     * 
+     * @param other Matrix to subtract
+     * @return Matrix<T> Difference of the matrix and the other matrix
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::operator-(const Matrix<T> &other) const
+    {
+        if (_width != other._width || _height != other._height)
+            throw std::invalid_argument("Matrices must have the same size");
+        Matrix<T> result(_width, _height);
+        for (size_t i = 0; i < _width; i++)
+            result[i] = (*this)[i] - other[i];
+        return result;
+    }
+
+    /**
+     * @brief Add another matrix to the matrix
+     * 
+     * @param other Matrix to add
+     * @return Matrix<T>& Result of addition
+     */
+    template <Arithmetic T>
+    Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &other)
+    {
+        if (_width != other._width || _height != other._height)
+            throw std::invalid_argument("Matrices must have the same size");
+        for (size_t i = 0; i < _width; i++)
+            (*this)[i] += other[i];
+        return *this;
+    }
+
+    /**
+     * @brief Subtract another matrix from the matrix
+     * 
+     * @param other Matrix to subtract
+     * @return Matrix<T>& Result of subtraction
+     */
+    template <Arithmetic T>
+    Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &other)
+    {
+        if (_width != other._width || _height != other._height)
+            throw std::invalid_argument("Matrices must have the same size");
+        for (size_t i = 0; i < _width; i++)
+            (*this)[i] -= other[i];
+        return *this;
+    }
+
+    /**
+     * @brief Multiply the matrix by a scalar
+     * 
+     * @param scalar Scalar to multiply by
+     * @return Matrix<T> Result of multiplication
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::operator*(T scalar) const
+    {
+        Matrix<T> result(_width, _height);
+        for (size_t i = 0; i < _width; i++)
+            result[i] = (*this)[i] * scalar;
+        return result;
+    }
+
+    /**
+     * @brief Multiply the matrix by a scalar and assign the result to the matrix
+     * 
+     * @param scalar Scalar to multiply by
+     * @return Matrix<T>& Result of multiplication
+     */
+    template <Arithmetic T>
+    Matrix<T> &Matrix<T>::operator*=(T scalar)
+    {
+        for (size_t i = 0; i < _width; i++)
+            (*this)[i] *= scalar;
+        return *this;
     }
 
     /**
