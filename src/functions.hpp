@@ -68,6 +68,32 @@ namespace m42
         return u + (v - u) * t;
     }
 
+    /**
+     * @brief Computes the cosine of angle between two vectors
+     * 
+     * @tparam T Type of the vector components
+     * @param u First vector
+     * @param v Second vector
+     * @return double Cosine of angle between the vectors
+     */
+    template <typename T>
+    double angle_cos(const Vector<T> &u, const Vector<T> &v)
+    {
+        return (u * v) / (u.norm() * v.norm());
+    }
+
+    template <typename T>
+    Vector<T> cross_product(const Vector<T> &u, const Vector<T> &v)
+    {
+        if (u.size() != 3 || v.size() != 3)
+            throw std::invalid_argument("Cross product is defined only for 3-dimensional vectors");
+        return Vector<T>{
+            u[1] * v[2] - u[2] * v[1],
+            u[2] * v[0] - u[0] * v[2],
+            u[0] * v[1] - u[1] * v[0],
+        };
+    }
+
 }
 
 #endif

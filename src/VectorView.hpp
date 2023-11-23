@@ -53,6 +53,7 @@ namespace m42
         Vector<T> operator*(T scalar) const;
         VectorView<T> operator*=(T scalar);
         T operator*(const VectorView &other) const;
+        Vector<T> operator-() const;
         operator std::string() const;
     };
 
@@ -348,6 +349,20 @@ namespace m42
         // use std::fma
         for (size_t i = 0; i < _size; i++)
             result = std::fma(_data[i], other._data[i], result);
+        return result;
+    }
+
+    /**
+     * @brief Negate a vector
+     *
+     * @return Vector Negated vector
+     */
+    template <Arithmetic T>
+    Vector<T> VectorView<T>::operator-() const
+    {
+        Vector<T> result(_size);
+        for (size_t i = 0; i < _size; i++)
+            result[i] = -_data[i];
         return result;
     }
 

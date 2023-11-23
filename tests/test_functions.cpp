@@ -67,3 +67,27 @@ TEST_CASE("Linear interpolation for two matrices")
         {16.5, 22.0},
     });
 }
+
+TEST_CASE("Cosine of angle between two vectors")
+{
+    REQUIRE(angle_cos(Vector{1.0, 0.0}, Vector{1.0, 0.0}) == 1.0);
+    REQUIRE(angle_cos(Vector{1.0, 0.0}, Vector{0.0, 1.0}) == 0.0);
+    // compare floating point numbers with a tolerance
+    REQUIRE(angle_cos(Vector{-1.0, 1.0}, Vector{1.0, -1.0}) - -1.0 < 1e-6);
+    REQUIRE(angle_cos(Vector{2.0, 1.0}, Vector{4.0, 2.0}) - 1.0 < 1e-6);
+    REQUIRE(angle_cos(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) - 0.974631846 < 1e-6);
+
+    REQUIRE(angle_cos(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == angle_cos(Vector{4.0, 5.0, 6.0}, Vector{1.0, 2.0, 3.0}));
+}
+
+TEST_CASE("Cross product of two vectors")
+{
+    REQUIRE(cross_product(Vector{1.0, 0.0, 0.0}, Vector{0.0, 1.0, 0.0}) == Vector{0.0, 0.0, 1.0});
+    REQUIRE(cross_product(Vector{1.0, 0.0, 0.0}, Vector{0.0, 0.0, 1.0}) == Vector{0.0, -1.0, 0.0});
+    REQUIRE(cross_product(Vector{0.0, 1.0, 0.0}, Vector{0.0, 0.0, 1.0}) == Vector{1.0, 0.0, 0.0});
+    REQUIRE(cross_product(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == Vector{-3.0, 6.0, -3.0});
+    REQUIRE(cross_product(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == -cross_product(Vector{4.0, 5.0, 6.0}, Vector{1.0, 2.0, 3.0}));
+    REQUIRE(cross_product(Vector{0.0, 0.0, 1.0}, Vector{1.0, 0.0, 0.0}) == Vector{0.0, 1.0, 0.0});
+    REQUIRE(cross_product(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == Vector{-3.0, 6.0, -3.0});
+    REQUIRE(cross_product(Vector{4.0, 2.0, -3.0}, Vector{-2.0, -5.0, 16.0}) == Vector{17.0, -58.0, -16.0});
+}
