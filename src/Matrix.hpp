@@ -20,7 +20,7 @@ namespace m42
 
     /**
      * @brief Matrix class
-     * 
+     *
      * @tparam T Type of matrix components
      */
     template <Arithmetic T>
@@ -50,6 +50,12 @@ namespace m42
         T *data();
         const T *data() const;
         Vector<T> reshapeIntoVector() const;
+        Vector<T> row(size_t i) const;
+        void setRow(size_t i, const Vector<T> &vector);
+        T trace() const;
+        Matrix transpose() const;
+        bool isAprrox(const Matrix &other, double epsilon = 1e-8) const;
+        Matrix rowEchelon() const;
 
         VectorView<T> operator[](size_t i);
         const VectorView<T> operator[](size_t i) const;
@@ -60,6 +66,8 @@ namespace m42
         Matrix &operator-=(const Matrix &other);
         Matrix operator*(T scalar) const;
         Matrix &operator*=(T scalar);
+        Vector<T> operator*(const Vector<T> &vector) const;
+        Matrix operator*(const Matrix &other) const;
         operator std::string() const;
     };
 
@@ -71,7 +79,7 @@ namespace m42
 
     /**
      * @brief Construct a new Matrix object with the given width and height
-     * 
+     *
      * @param width Width of the matrix
      * @param height Height of the matrix
      */
@@ -80,7 +88,7 @@ namespace m42
 
     /**
      * @brief Construct a new Matrix object from an initializer list
-     * 
+     *
      * @param list Initializer list
      * @param width Width of the matrix
      * @param height Height of the matrix
@@ -98,7 +106,7 @@ namespace m42
 
     /**
      * @brief Construct a new Matrix object from an initializer list of initializer lists
-     * 
+     *
      * @param list Initializer list of initializer lists
      */
     template <Arithmetic T>
@@ -115,7 +123,7 @@ namespace m42
 
     /**
      * @brief Construct a new Matrix object from a pointer to the matrix data
-     * 
+     *
      * @param data Pointer to the matrix data
      */
     template <Arithmetic T>
@@ -127,7 +135,7 @@ namespace m42
 
     /**
      * @brief Copy constructor
-     * 
+     *
      * @param other Matrix to copy
      */
     template <Arithmetic T>
@@ -139,7 +147,7 @@ namespace m42
 
     /**
      * @brief Move constructor
-     * 
+     *
      * @param other Matrix to move
      */
     template <Arithmetic T>
@@ -152,7 +160,7 @@ namespace m42
 
     /**
      * @brief Assignment operator
-     * 
+     *
      * @param other Right-hand side of the assignment
      * @return Matrix<T, W, H>& Left-hand side after assignment
      */
@@ -177,7 +185,7 @@ namespace m42
 
     /**
      * @brief Return the width of the matrix
-     * 
+     *
      * @return size_t Width of the matrix
      */
     template <Arithmetic T>
@@ -188,7 +196,7 @@ namespace m42
 
     /**
      * @brief Return the height of the matrix
-     * 
+     *
      * @return size_t Height of the matrix
      */
     template <Arithmetic T>
@@ -199,7 +207,7 @@ namespace m42
 
     /**
      * @brief Return whether the matrix is square
-     * 
+     *
      * @tparam T Type of matrix components
      * @return bool Whether the matrix is square
      */
@@ -211,7 +219,7 @@ namespace m42
 
     /**
      * @brief Return a pointer to the matrix data
-     * 
+     *
      * @return const T* Pointer to the matrix data
      */
     template <Arithmetic T>
@@ -222,7 +230,7 @@ namespace m42
 
     /**
      * @brief Return a const pointer to the matrix data
-     * 
+     *
      * @return const T* Const pointer to the matrix data
      */
     template <Arithmetic T>
@@ -233,7 +241,7 @@ namespace m42
 
     /**
      * @brief Reshape the matrix into a vector
-     * 
+     *
      * @return Vector<T> Vector with matrix data
      */
     template <Arithmetic T>
@@ -243,8 +251,127 @@ namespace m42
     }
 
     /**
+     * @brief Return an i-th row of the matrix
+     *
+     * @param i Index of the row
+     * @return Vector<T> i-th row of the matrix
+     */
+    template <Arithmetic T>
+    Vector<T> Matrix<T>::row(size_t i) const
+    {
+        // data is stored in column-major order
+        Vector<T> result(_width);
+        for (size_t j = 0; j < _width; j++)
+            result[j] = (*this)[j][i];
+        return result;
+    }
+
+    /**
+     * @brief Set an i-th row of the matrix
+     *
+     * @param i Index of the row
+     * @param vector Vector to set the row to
+     */
+    template <Arithmetic T>
+    void Matrix<T>::setRow(size_t i, const Vector<T> &vector)
+    {
+        // data is stored in column-major order
+        for (size_t j = 0; j < _width; j++)
+            (*this)[j][i] = vector[j];
+    }
+
+    /**
+     * @brief Return the trace of the matrix
+     *
+     * @return T Trace of the matrix
+     */
+    template <Arithmetic T>
+    T Matrix<T>::trace() const
+    {
+        if (!isSquare())
+            throw std::invalid_argument("Matrix must be square");
+        T result = 0;
+        for (size_t i = 0; i < _width; i++)
+            result += (*this)[i][i];
+        return result;
+    }
+
+    /**
+     * @brief Return the transpose of the matrix
+     *
+     * @return Matrix<T> Transpose of the matrix
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::transpose() const
+    {
+        Matrix<T> result(_height, _width);
+        for (size_t i = 0; i < _height; i++)
+            result[i] = row(i);
+        return result;
+    }
+
+    /**
+     * @brief Return whether the matrix is approximately equal to another matrix
+     *
+     * @param other Matrix to compare to
+     * @param epsilon Epsilon
+     * @return bool Whether the matrix is approximately equal to the other matrix
+     */
+    template <Arithmetic T>
+    bool Matrix<T>::isAprrox(const Matrix<T> &other, double epsilon) const
+    {
+        if (_width != other._width || _height != other._height)
+            return false;
+        for (size_t i = 0; i < _width; i++)
+            if (!(*this)[i].isApprox(other[i], epsilon))
+                return false;
+        return true;
+    }
+
+    /**
+     * @brief Return the row echelon form of the matrix
+     *
+     * @return Matrix<T> Row echelon form of the matrix
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::rowEchelon() const
+    {
+        Matrix<T> result(*this);
+        size_t row = 0;
+        size_t col = 0;
+        while (row < _height && col < _width)
+        {
+            // find pivot
+            size_t pivot = row;
+            for (size_t i = row + 1; i < _height; i++)
+                if (std::abs(result[col][i]) > std::abs(result[col][pivot]))
+                    pivot = i;
+            if (result[col][pivot] == 0)
+            {
+                col++;
+                continue;
+            }
+            // swap rows
+            if (pivot != row)
+            {
+                Vector tmp = result.row(pivot);
+                result.setRow(pivot, result.row(row));
+                result.setRow(row, tmp);
+            }
+            result.setRow(row, result.row(row) / result[col][row]);
+            // subtract row from other rows
+            for (size_t i = 0; i < _height; i++)
+                if (i != row)
+                    result.setRow(i, result.row(i) - result.row(row) * result[col][i]);
+            row++;
+            col++;
+        }
+        return result;
+    }
+
+    /**
      * @brief Return an i-th vector of the matrix
-     * 
+     *
      * @param i Index of the vector
      * @return VectorView<T> i-th vector of the matrix
      */
@@ -256,7 +383,7 @@ namespace m42
 
     /**
      * @brief Return an i-th vector of the matrix
-     * 
+     *
      * @param i Index of the vector
      * @return Vector<const T> i-th vector of the matrix
      */
@@ -268,7 +395,7 @@ namespace m42
 
     /**
      * @brief Return whether the matrix is equal to another matrix
-     * 
+     *
      * @param other Matrix to compare to
      * @return bool Whether the matrix is equal to the other matrix
      */
@@ -287,7 +414,7 @@ namespace m42
 
     /**
      * @brief Return the sum of the matrix and another matrix
-     * 
+     *
      * @param other Matrix to add
      * @return Matrix<T> Sum of the matrix and the other matrix
      */
@@ -304,7 +431,7 @@ namespace m42
 
     /**
      * @brief Return the difference of the matrix and another matrix
-     * 
+     *
      * @param other Matrix to subtract
      * @return Matrix<T> Difference of the matrix and the other matrix
      */
@@ -321,7 +448,7 @@ namespace m42
 
     /**
      * @brief Add another matrix to the matrix
-     * 
+     *
      * @param other Matrix to add
      * @return Matrix<T>& Result of addition
      */
@@ -337,7 +464,7 @@ namespace m42
 
     /**
      * @brief Subtract another matrix from the matrix
-     * 
+     *
      * @param other Matrix to subtract
      * @return Matrix<T>& Result of subtraction
      */
@@ -353,7 +480,7 @@ namespace m42
 
     /**
      * @brief Multiply the matrix by a scalar
-     * 
+     *
      * @param scalar Scalar to multiply by
      * @return Matrix<T> Result of multiplication
      */
@@ -368,7 +495,7 @@ namespace m42
 
     /**
      * @brief Multiply the matrix by a scalar and assign the result to the matrix
-     * 
+     *
      * @param scalar Scalar to multiply by
      * @return Matrix<T>& Result of multiplication
      */
@@ -381,8 +508,42 @@ namespace m42
     }
 
     /**
+     * @brief Multiply the matrix by a vector
+     *
+     * @param vector Vector to multiply by
+     * @return Matrix<T> Result of multiplication
+     */
+    template <Arithmetic T>
+    Vector<T> Matrix<T>::operator*(const Vector<T> &vector) const
+    {
+        if (_width != vector.size())
+            throw std::invalid_argument("Matrix width must be equal to vector size");
+        Vector<T> result(_height);
+        for (size_t i = 0; i < _height; i++)
+            result[i] = (*this).row(i) * vector;
+        return result;
+    }
+
+    /**
+     * @brief Multiply the matrix by another matrix
+     *
+     * @param other Matrix to multiply by
+     * @return Matrix<T> Result of multiplication
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::operator*(const Matrix<T> &other) const
+    {
+        if (_width != other._height)
+            throw std::invalid_argument("Matrix width must be equal to other matrix height");
+        Matrix<T> result(other._width, _height);
+        for (size_t i = 0; i < other._width; i++)
+            result[i] = (*this) * other[i];
+        return result;
+    }
+
+    /**
      * @brief Return a string representation of the matrix
-     * 
+     *
      * @return std::string String representation of the matrix
      */
     template <Arithmetic T>
@@ -407,7 +568,7 @@ namespace m42
 
     /**
      * @brief fmt::formatter specialization for Matrix
-     * 
+     *
      * @param v Matrix to format
      * @return auto Matrix formatted as a string
      */
@@ -416,10 +577,10 @@ namespace m42
     {
         return static_cast<std::string>(v);
     }
-    
+
     /**
      * @brief Output stream operator for Matrix
-     * 
+     *
      * @param os Output stream
      * @param m Matrix to output
      * @return std::ostream& Output stream

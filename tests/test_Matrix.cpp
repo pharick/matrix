@@ -418,3 +418,191 @@ TEST_CASE("Multiplication assignment", "[Matrix]")
         8, 10, 12,
     }, 3, 2));
 }
+
+TEST_CASE("Get matrix column and row", "[Matrix]")
+{
+    Matrix m{
+        {1, 2, 3},
+        {4, 5, 6},
+    };
+
+    REQUIRE(m[0] == Vector{1, 4});
+    REQUIRE(m[1] == Vector{2, 5});
+    REQUIRE(m[2] == Vector{3, 6});
+
+    REQUIRE(m.row(0) == Vector{1, 2, 3});
+    REQUIRE(m.row(1) == Vector{4, 5, 6});
+}
+
+TEST_CASE("Matrix vector multiplication", "[Matrix]")
+{
+    Matrix m{
+        {1, 0},
+        {0, 1},
+    };
+    Vector v{4, 2};
+    REQUIRE(m * v == Vector{4, 2});
+
+    Matrix m2{
+        {2, 0},
+        {0, 2},
+    };
+    Vector v2{4, 2};
+    REQUIRE(m2 * v2 == Vector{8, 4});
+
+    Matrix m3{
+        {2, -2},
+        {-2, 2},
+    };
+    Vector v3{4, 2};
+    REQUIRE(m3 * v3 == Vector{4, -4});
+}
+
+TEST_CASE("Matrix matrix multiplication", "[Matrix]")
+{
+    Matrix m1{
+        {1, 0},
+        {0, 1},
+    };
+    Matrix m2{
+        {1, 0},
+        {0, 1},
+    };
+    REQUIRE(m1 * m2 == Matrix{
+        {1, 0},
+        {0, 1},
+    });
+
+    Matrix m3{
+        {1, 0},
+        {0, 1},
+    };
+    Matrix m4{
+        {2, 1},
+        {4, 2},
+    };
+    REQUIRE(m3 * m4 == Matrix{
+        {2, 1},
+        {4, 2},
+    });
+
+    Matrix m5{
+        {3, -5},
+        {6, 8},
+    };
+    Matrix m6{
+        {2, 1},
+        {4, 2},
+    };
+    REQUIRE(m5 * m6 == Matrix{
+        {-14, -7},
+        {44, 22},
+    });
+}
+
+TEST_CASE("Trace of a matrix", "[Matrix]")
+{
+    Matrix m{
+        {1, 0},
+        {0, 1},
+    };
+    REQUIRE(m.trace() == 2);
+
+    Matrix m2{
+        { 2, -5, 0},
+        { 4,  3, 7},
+        {-2,  3, 4},
+    };
+    REQUIRE(m2.trace() == 9);
+
+    Matrix m3{
+        {-2, -8,  4},
+        { 1, -23, 4},
+        { 0,  6,  4},
+    };
+    REQUIRE(m3.trace() == -21);
+}
+
+TEST_CASE("Transpose matrix", "[Matrix]")
+{
+    Matrix m{
+        {1, 2, 3},
+        {4, 5, 6},
+    };
+    REQUIRE(m.transpose() == Matrix{
+        {1, 4},
+        {2, 5},
+        {3, 6},
+    });
+}
+
+TEST_CASE("Set row of a matrix", "[Matrix]")
+{
+    Matrix m{
+        {1, 2, 3},
+        {4, 5, 6},
+    };
+    m.setRow(0, Vector{7, 8, 9});
+    REQUIRE(m == Matrix{
+        {7, 8, 9},
+        {4, 5, 6},
+    });
+}
+
+TEST_CASE("Swap rows of a matrix", "[Matrix]")
+{
+    Matrix m{
+        {1, 2, 3},
+        {4, 5, 6},
+    };
+    Vector tmp = m.row(0);
+    m.setRow(0, m.row(1));
+    m.setRow(1, tmp);
+    REQUIRE(m == Matrix{
+        {4, 5, 6},
+        {1, 2, 3},
+    });
+}
+
+TEST_CASE("Row echelon form", "[Matrix]")
+{
+    Matrix m{
+        {1, 0, 0},
+        {0, 1, 0},
+        {0, 0, 1},
+    };
+    REQUIRE(m.rowEchelon() == Matrix{
+        {1, 0, 0},
+        {0, 1, 0},
+        {0, 0, 1},
+    });
+
+    Matrix m2{
+        {1, 2},
+        {3, 4},
+    };
+    REQUIRE(m2.rowEchelon() == Matrix{
+        {1, 0},
+        {0, 1},
+    });
+
+    Matrix m3{
+        {1, 2},
+        {2, 4},
+    };
+    REQUIRE(m3.rowEchelon() == Matrix{
+        {1, 2},
+        {0, 0},
+    });
+
+    Matrix m4{
+        {8.0, 5.0, -2.0,  4.0,  28.0},
+        {4.0, 2.5,  20.0, 4.0, -4.0},
+        {8.0, 5.0,  1.0,  4.0,  17.0},
+    };
+    REQUIRE(m4.rowEchelon().isAprrox(Matrix{
+        {1.0, 0.625, 0.0, 0.0, -12.1666667},
+        {0.0, 0.0,   1.0, 0.0, -3.6666667},
+        {0.0, 0.0,   0.0, 1.0,  29.5},
+    }, 1e-7));
+}

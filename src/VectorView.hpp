@@ -3,6 +3,7 @@
 
 #include "common.hpp"
 #include "Matrix.hpp"
+#include <iostream>
 
 namespace m42
 {
@@ -42,6 +43,7 @@ namespace m42
         double norm1() const;
         double norm() const;
         double normInf() const;
+        bool isApprox(const VectorView &other, double epsilon = 1e-8) const;
 
         T &operator[](size_t index);
         const T &operator[](size_t index) const;
@@ -52,6 +54,8 @@ namespace m42
         VectorView<T> &operator-=(const VectorView &other);
         Vector<T> operator*(T scalar) const;
         VectorView<T> operator*=(T scalar);
+        Vector<T> operator/(T scalar);
+        VectorView<T> operator/=(T scalar);
         T operator*(const VectorView &other) const;
         Vector<T> operator-() const;
         operator std::string() const;
@@ -184,11 +188,29 @@ namespace m42
     template <Arithmetic T>
     double VectorView<T>::normInf() const
     {
-        // not allowed to use std::abs
         T result = 0;
         for (size_t i = 0; i < _size; i++)
-            result = std::max(result, _data[i] > 0 ? _data[i] : -_data[i]);
+            result = std::max(result, std::abs(_data[i]));
         return result;
+    }
+
+    /**
+     * @brief Check if two vectors are approximately equal
+     *
+     * @param other Vector to compare
+     * @param epsilon Maximum difference between elements
+     * @return true Vectors are approximately equal
+     * @return false Vectors are not approximately equal
+     */
+    template <Arithmetic T>
+    bool VectorView<T>::isApprox(const VectorView &other, double epsilon) const
+    {
+        if (_size != other._size)
+            return false;
+        for (size_t i = 0; i < _size; i++)
+            if (std::abs(_data[i] - other._data[i]) > epsilon)
+                return false;
+        return true;
     }
 
     /**
@@ -331,6 +353,35 @@ namespace m42
     {
         for (size_t i = 0; i < _size; i++)
             _data[i] *= scalar;
+        return *this;
+    }
+
+    /**
+     * @brief Divide a vector by a scalar
+     *
+     * @param scalar Scalar to divide by
+     * @return Vector Result of division
+     */
+    template <Arithmetic T>
+    Vector<T> VectorView<T>::operator/(T scalar)
+    {
+        Vector<T> result(_size);
+        for (size_t i = 0; i < _size; i++)
+            result[i] = _data[i] / scalar;
+        return result;
+    }
+
+    /**
+     * @brief Divide a vector by a scalar and assign the result to the vector
+     *
+     * @param scalar Scalar to divide by
+     * @return Vector& Result of division
+     */
+    template <Arithmetic T>
+    VectorView<T> VectorView<T>::operator/=(T scalar)
+    {
+        for (size_t i = 0; i < _size; i++)
+            _data[i] /= scalar;
         return *this;
     }
 
