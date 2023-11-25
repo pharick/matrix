@@ -56,6 +56,11 @@ namespace m42
         Matrix transpose() const;
         bool isAprrox(const Matrix &other, double epsilon = 1e-8) const;
         Matrix rowEchelon() const;
+        T determinant() const;
+        Matrix inverse() const;
+        T cofactor(size_t i, size_t j) const;
+        Matrix getSubmatrix(size_t i, size_t j) const;
+        size_t rank() const;
 
         VectorView<T> operator[](size_t i);
         const VectorView<T> operator[](size_t i) const;
@@ -367,6 +372,117 @@ namespace m42
             col++;
         }
         return result;
+    }
+
+    /**
+     * @brief Return the determinant of the matrix
+     *
+     * @return T Determinant of the matrix
+     */
+    template <Arithmetic T>
+    T Matrix<T>::determinant() const
+    {
+        if (!isSquare())
+            throw std::invalid_argument("Matrix must be square");
+        // Laplace expansion
+        if (_width == 1)
+            return (*this)[0][0];
+        T result = 0;
+        for (size_t i = 0; i < _width; i++)
+            result += (*this)[i][0] * cofactor(i, 0);
+        return result;
+    }
+
+    /**
+     * @brief Return the inverse of the matrix
+     *
+     * @return Matrix<T> Inverse of the matrix
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::inverse() const
+    {
+        if (!isSquare())
+            throw std::invalid_argument("Matrix must be square");
+        if (determinant() == 0)
+            throw std::invalid_argument("Matrix must be invertible");
+        Matrix<T> result(_width, _height);
+        for (size_t i = 0; i < _width; i++)
+            for (size_t j = 0; j < _height; j++)
+                result[i][j] = cofactor(j, i);
+        return result * (1 / determinant());
+    }
+
+    /**
+     * @brief Return the cofactor of the matrix
+     *
+     * @param i Row index
+     * @param j Column index
+     * @return T Cofactor of the matrix
+     */
+    template <Arithmetic T>
+    T Matrix<T>::cofactor(size_t i, size_t j) const
+    {
+        if (!isSquare())
+            throw std::invalid_argument("Matrix must be square");
+        if (_width == 1)
+            return 1;
+        // Laplace expansion
+        Matrix<T> submatrix = getSubmatrix(i, j);
+        return std::pow(-1, i + j) * submatrix.determinant();
+    }
+
+    /**
+     * @brief Return the submatrix of the matrix
+     *
+     * @param i Row index
+     * @param j Column index
+     * @return Matrix<T> Submatrix of the matrix
+     */
+    template <Arithmetic T>
+    Matrix<T> Matrix<T>::getSubmatrix(size_t i, size_t j) const
+    {
+        if (!isSquare())
+            throw std::invalid_argument("Matrix must be square");
+        Matrix<T> result(_width - 1, _height - 1);
+        size_t row = 0;
+        size_t col = 0;
+        for (size_t k = 0; k < _width; k++)
+        {
+            if (k == i)
+                continue;
+            for (size_t l = 0; l < _height; l++)
+            {
+                if (l == j)
+                    continue;
+                result[col][row] = (*this)[k][l];
+                row++;
+            }
+            row = 0;
+            col++;
+        }
+        return result;
+    }
+
+    /**
+     * @brief Return the rank of the matrix
+     *
+     * @return size_t Rank of the matrix
+     */
+    template <Arithmetic T>
+    size_t Matrix<T>::rank() const
+    {
+        Matrix echelon = rowEchelon();
+        size_t rank = 0;
+        for (size_t i = 0; i < _height; i++)
+        {
+            bool isZero = true;
+            for (size_t j = 0; j < _width; j++)
+                if (echelon[j][i] != 0)
+                    isZero = false;
+            if (!isZero)
+                rank++;
+        }
+        return rank;
     }
 
     /**
