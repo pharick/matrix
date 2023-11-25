@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <fstream>
 
 #include "functions.hpp"
 #include "Matrix.hpp"
@@ -9,7 +10,7 @@ TEST_CASE("Linear combination of vectors", "[Vector]")
 {
     Vector<int> v1{1, 2, 3};
     Vector<int> v2{4, 5, 6};
-    Vector<int> result = linear_combination({v1, v2}, {2, 3});
+    Vector<int> result = linearCombination({v1, v2}, {2, 3});
     REQUIRE(result == Vector<int>({14, 19, 24}));
 }
 
@@ -21,12 +22,12 @@ TEST_CASE("Linear combinations invalid arguments", "[Vector]")
 
     SECTION("Vectors and coefficients collections must be of the same size")
     {
-        REQUIRE_THROWS_AS(linear_combination({v1, v2}, {2}), std::invalid_argument);
+        REQUIRE_THROWS_AS(linearCombination({v1, v2}, {2}), std::invalid_argument);
     }
 
     SECTION("Vectors must be of the same size")
     {
-        REQUIRE_THROWS_AS(linear_combination({v1, v3}, {2, 3}), std::invalid_argument);
+        REQUIRE_THROWS_AS(linearCombination({v1, v3}, {2, 3}), std::invalid_argument);
     }
 }
 
@@ -70,24 +71,42 @@ TEST_CASE("Linear interpolation for two matrices")
 
 TEST_CASE("Cosine of angle between two vectors")
 {
-    REQUIRE(angle_cos(Vector{1.0, 0.0}, Vector{1.0, 0.0}) == 1.0);
-    REQUIRE(angle_cos(Vector{1.0, 0.0}, Vector{0.0, 1.0}) == 0.0);
+    REQUIRE(angleCos(Vector{1.0, 0.0}, Vector{1.0, 0.0}) == 1.0);
+    REQUIRE(angleCos(Vector{1.0, 0.0}, Vector{0.0, 1.0}) == 0.0);
     // compare floating point numbers with a tolerance
-    REQUIRE(angle_cos(Vector{-1.0, 1.0}, Vector{1.0, -1.0}) - -1.0 < 1e-6);
-    REQUIRE(angle_cos(Vector{2.0, 1.0}, Vector{4.0, 2.0}) - 1.0 < 1e-6);
-    REQUIRE(angle_cos(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) - 0.974631846 < 1e-6);
+    REQUIRE(angleCos(Vector{-1.0, 1.0}, Vector{1.0, -1.0}) - -1.0 < 1e-6);
+    REQUIRE(angleCos(Vector{2.0, 1.0}, Vector{4.0, 2.0}) - 1.0 < 1e-6);
+    REQUIRE(angleCos(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) - 0.974631846 < 1e-6);
 
-    REQUIRE(angle_cos(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == angle_cos(Vector{4.0, 5.0, 6.0}, Vector{1.0, 2.0, 3.0}));
+    REQUIRE(angleCos(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == angleCos(Vector{4.0, 5.0, 6.0}, Vector{1.0, 2.0, 3.0}));
 }
 
 TEST_CASE("Cross product of two vectors")
 {
-    REQUIRE(cross_product(Vector{1.0, 0.0, 0.0}, Vector{0.0, 1.0, 0.0}) == Vector{0.0, 0.0, 1.0});
-    REQUIRE(cross_product(Vector{1.0, 0.0, 0.0}, Vector{0.0, 0.0, 1.0}) == Vector{0.0, -1.0, 0.0});
-    REQUIRE(cross_product(Vector{0.0, 1.0, 0.0}, Vector{0.0, 0.0, 1.0}) == Vector{1.0, 0.0, 0.0});
-    REQUIRE(cross_product(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == Vector{-3.0, 6.0, -3.0});
-    REQUIRE(cross_product(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == -cross_product(Vector{4.0, 5.0, 6.0}, Vector{1.0, 2.0, 3.0}));
-    REQUIRE(cross_product(Vector{0.0, 0.0, 1.0}, Vector{1.0, 0.0, 0.0}) == Vector{0.0, 1.0, 0.0});
-    REQUIRE(cross_product(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == Vector{-3.0, 6.0, -3.0});
-    REQUIRE(cross_product(Vector{4.0, 2.0, -3.0}, Vector{-2.0, -5.0, 16.0}) == Vector{17.0, -58.0, -16.0});
+    REQUIRE(crossProduct(Vector{1.0, 0.0, 0.0}, Vector{0.0, 1.0, 0.0}) == Vector{0.0, 0.0, 1.0});
+    REQUIRE(crossProduct(Vector{1.0, 0.0, 0.0}, Vector{0.0, 0.0, 1.0}) == Vector{0.0, -1.0, 0.0});
+    REQUIRE(crossProduct(Vector{0.0, 1.0, 0.0}, Vector{0.0, 0.0, 1.0}) == Vector{1.0, 0.0, 0.0});
+    REQUIRE(crossProduct(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == Vector{-3.0, 6.0, -3.0});
+    REQUIRE(crossProduct(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == -crossProduct(Vector{4.0, 5.0, 6.0}, Vector{1.0, 2.0, 3.0}));
+    REQUIRE(crossProduct(Vector{0.0, 0.0, 1.0}, Vector{1.0, 0.0, 0.0}) == Vector{0.0, 1.0, 0.0});
+    REQUIRE(crossProduct(Vector{1.0, 2.0, 3.0}, Vector{4.0, 5.0, 6.0}) == Vector{-3.0, 6.0, -3.0});
+    REQUIRE(crossProduct(Vector{4.0, 2.0, -3.0}, Vector{-2.0, -5.0, 16.0}) == Vector{17.0, -58.0, -16.0});
+}
+
+TEST_CASE("Projection matrix")
+{
+    Matrix proj =
+        makeProjectionMatrix(M_PI / 4.0f, 1.0f, 1.0f, 100.0f);
+    std::ofstream file("display_macos/proj", std::ios::out | std::ios::trunc);
+    for (size_t i = 0; i < proj.width(); i++)
+    {
+        for (size_t j = 0; j < proj.height(); j++)
+        {
+            file << proj[j][i];
+            if (j < proj.width() - 1)
+                file << ", ";
+        }
+        file << std::endl;
+    }
+    file.close();
 }
