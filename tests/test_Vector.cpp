@@ -128,15 +128,10 @@ TEST_CASE("Vector equality", "[Vector]")
 
 TEST_CASE("Reshape vector into matrix", "[Vector]")
 {
-    Vector<int> v{1, 2, 3, 4, 5, 6};
-    Matrix<int> m = v.reshapeIntoMatrix(3, 2);
-
-    REQUIRE(m.width() == 3);
-    REQUIRE(m.height() == 2);
-    REQUIRE(m == Matrix<int>({
-        1, 3, 5,
-        2, 4, 6,
-    }, 3, 2));
+    Vector v{1, 2, 3, 4, 5, 6};
+    REQUIRE(v.reshape() == Matrix{
+        {1, 2, 3, 4, 5, 6},
+    });
 }
 
 TEST_CASE("Vector addition", "[Vector]")

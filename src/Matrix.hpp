@@ -49,7 +49,7 @@ namespace m42
         bool isSquare() const;
         T *data();
         const T *data() const;
-        Vector<T> reshapeIntoVector() const;
+        Vector<T> reshape() const;
         Vector<T> row(size_t i) const;
         void setRow(size_t i, const Vector<T> &vector);
         T trace() const;
@@ -119,7 +119,7 @@ namespace m42
     {
         for (size_t i = 0; i < _height; i++)
             if ((list.begin() + i)->size() != _width)
-                throw std::invalid_argument("Invalid initializer list size");
+                throw std::invalid_argument("All rows must have the same size");
         // row-major order to column-major order
         for (size_t i = 0; i < _width; i++)
             for (size_t j = 0; j < _height; j++)
@@ -245,13 +245,15 @@ namespace m42
     }
 
     /**
-     * @brief Reshape the matrix into a vector
+     * @brief Reshape the matrix with height 1 into a vector
      *
-     * @return Vector<T> Vector with matrix data
+     * @return Vector<T> Reshaped matrix
      */
     template <Arithmetic T>
-    Vector<T> Matrix<T>::reshapeIntoVector() const
+    Vector<T> Matrix<T>::reshape() const
     {
+        if (_height > 1)
+            throw std::invalid_argument("Matrix must be a row vector");
         return Vector<T>(_data, _width * _height);
     }
 
@@ -280,6 +282,8 @@ namespace m42
     template <Arithmetic T>
     void Matrix<T>::setRow(size_t i, const Vector<T> &vector)
     {
+        if (_width != vector.size())
+            throw std::invalid_argument("Matrix width must be equal to vector size");
         // data is stored in column-major order
         for (size_t j = 0; j < _width; j++)
             (*this)[j][i] = vector[j];
@@ -571,10 +575,7 @@ namespace m42
     template <Arithmetic T>
     Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &other)
     {
-        if (_width != other._width || _height != other._height)
-            throw std::invalid_argument("Matrices must have the same size");
-        for (size_t i = 0; i < _width; i++)
-            (*this)[i] += other[i];
+        (*this) = (*this) + other;
         return *this;
     }
 
@@ -587,10 +588,7 @@ namespace m42
     template <Arithmetic T>
     Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &other)
     {
-        if (_width != other._width || _height != other._height)
-            throw std::invalid_argument("Matrices must have the same size");
-        for (size_t i = 0; i < _width; i++)
-            (*this)[i] -= other[i];
+        (*this) = (*this) - other;
         return *this;
     }
 
@@ -618,8 +616,7 @@ namespace m42
     template <Arithmetic T>
     Matrix<T> &Matrix<T>::operator*=(T scalar)
     {
-        for (size_t i = 0; i < _width; i++)
-            (*this)[i] *= scalar;
+        (*this) = (*this) * scalar;
         return *this;
     }
 

@@ -310,13 +310,10 @@ TEST_CASE("Multiply matrix column by scalar", "[Matrix]")
 
 TEST_CASE("Reshape matrix into vector", "[Matrix]")
 {
-    Matrix<int> m({
-        1, 2, 3,
-        4, 5, 6,
-    }, 3, 2);
-    Vector<int> v = m.reshapeIntoVector();
-
-    REQUIRE(v == Vector<int>({1, 4, 2, 5, 3, 6}));
+    Matrix m({
+        {1, 2, 3, 4, 5, 6},
+    });
+    REQUIRE(m.reshape() == Vector({1, 2, 3, 4, 5, 6}));
 }
 
 TEST_CASE("Matrix addition", "[Matrix]")

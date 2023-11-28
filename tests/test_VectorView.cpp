@@ -75,23 +75,11 @@ TEST_CASE("Reshape vector into matrix", "[VectorView]")
 {
     int data[]{1, 2, 3, 4, 5, 6};
     size_t size = sizeof(data) / sizeof(int);
-
     VectorView<int> vectorView(data, size);
 
-    REQUIRE_THROWS_AS(vectorView.reshapeIntoMatrix(2, 2), std::invalid_argument);
-    REQUIRE_THROWS_AS(vectorView.reshapeIntoMatrix(4, 2), std::invalid_argument);
-
-    Matrix<int> matrix = vectorView.reshapeIntoMatrix(3, 2);
-
-    REQUIRE(matrix.width() == 3);
-    REQUIRE(matrix.height() == 2);
-    REQUIRE(matrix == Matrix<int>({
-        1, 3, 5,
-        2, 4, 6,
-    }, 3, 2));
-    REQUIRE(matrix[0] == VectorView(data, 2));
-    REQUIRE(matrix[1] == VectorView(data + 2, 2));
-    REQUIRE(matrix[2] == VectorView(data + 4, 2));
+    REQUIRE(vectorView.reshape() == Matrix<int>{
+        {1, 2, 3, 4, 5, 6},
+    });
 }
 
 TEST_CASE("Const vector view", "[VectorView]")

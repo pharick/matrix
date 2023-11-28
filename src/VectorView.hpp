@@ -3,7 +3,6 @@
 
 #include "common.hpp"
 #include "Matrix.hpp"
-#include <iostream>
 
 namespace m42
 {
@@ -39,7 +38,7 @@ namespace m42
         size_t size() const;
         T *data();
         const T *data() const;
-        Matrix<T> reshapeIntoMatrix(size_t width, size_t height) const;
+        Matrix<T> reshape() const;
         double norm1() const;
         double norm() const;
         double normInf() const;
@@ -137,18 +136,16 @@ namespace m42
     }
 
     /**
-     * @brief Reshape vector to a matrix
+     * @brief Reshape vector into size x 1 matrix
      *
-     * @param width Width of matrix
-     * @param height Height of matrix
-     * @return Matrix<T> Matrix with vector data
+     * @return Matrix<T> Reshaped vector
      */
     template <Arithmetic T>
-    Matrix<T> VectorView<T>::reshapeIntoMatrix(size_t width, size_t height) const
+    Matrix<T> VectorView<T>::reshape() const
     {
-        if (width * height != _size)
-            throw std::invalid_argument("Invalid matrix size");
-        return Matrix<T>(_data, width, height);
+        Matrix<T> result(_size, 1);
+        result.setRow(0, *this);
+        return result;
     }
 
     /**
@@ -236,9 +233,7 @@ namespace m42
     template <Arithmetic T>
     const T &VectorView<T>::operator[](size_t index) const
     {
-        if (index >= _size)
-            throw std::out_of_range("Index out of range");
-        return _data[index];
+        return const_cast<VectorView<T> *>(this)->operator[](index);
     }
 
     /**
@@ -287,12 +282,7 @@ namespace m42
     template <Arithmetic T>
     Vector<T> VectorView<T>::operator-(const VectorView &other) const
     {
-        if (_size != other._size)
-            throw std::invalid_argument("Vectors must be of the same size");
-        Vector<T> result(_size);
-        for (size_t i = 0; i < _size; i++)
-            result[i] = _data[i] - other._data[i];
-        return result;
+        return (*this) + (-other);
     }
 
     /**
@@ -304,10 +294,7 @@ namespace m42
     template <Arithmetic T>
     VectorView<T> &VectorView<T>::operator+=(const VectorView &other)
     {
-        if (_size != other._size)
-            throw std::invalid_argument("Vectors must be of the same size");
-        for (size_t i = 0; i < _size; i++)
-            _data[i] += other._data[i];
+        (*this) = (*this) + other;
         return *this;
     }
 
@@ -320,10 +307,7 @@ namespace m42
     template <Arithmetic T>
     VectorView<T> &VectorView<T>::operator-=(const VectorView &other)
     {
-        if (_size != other._size)
-            throw std::invalid_argument("Vectors must be of the same size");
-        for (size_t i = 0; i < _size; i++)
-            _data[i] -= other._data[i];
+        (*this) = (*this) - other;
         return *this;
     }
 
@@ -351,8 +335,7 @@ namespace m42
     template <Arithmetic T>
     VectorView<T> VectorView<T>::operator*=(T scalar)
     {
-        for (size_t i = 0; i < _size; i++)
-            _data[i] *= scalar;
+        (*this) = (*this) * scalar;
         return *this;
     }
 
@@ -380,8 +363,7 @@ namespace m42
     template <Arithmetic T>
     VectorView<T> VectorView<T>::operator/=(T scalar)
     {
-        for (size_t i = 0; i < _size; i++)
-            _data[i] /= scalar;
+        (*this) = (*this) / scalar;
         return *this;
     }
 
